@@ -1,0 +1,11 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "comic_drama": "server.workflows.graph:graph"
+  },
+  "env": ".env",
+  "auth": {
+    "path": "server.security.auth:auth",
+    "disable_studio_auth": true
+  }
+}
