@@ -9,7 +9,7 @@ def make_generate_scenes(text_model: TextModel):
         if requirement is None or outline is None:
             raise ValueError("缺少需求或故事大纲，不能生成场景设定")
         return {
-            "scenes": await text_model.generate_scenes(requirement, outline),
+            "scenes": text_model.generate_scenes(requirement, outline),
             "events": ["已生成场景设定"],
         }
 

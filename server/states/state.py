@@ -7,6 +7,7 @@ from server.schema.revision_record import RevisionRecord
 from server.schema.scene_profile import SceneProfile
 from server.schema.story_outline import StoryOutline
 from server.schema.storyboard import StoryBoard
+from server.schema.storyboard_review import StoryboardReview
 from server.schema.storyboard_validation import StoryboardValidation
 
 
@@ -49,3 +50,14 @@ class ComicDramaState(TypedDict):
     revision_history: NotRequired[list[RevisionRecord]]
     # 停止下一次修订的原因
     stop_reason: NotRequired[str | None]
+
+    # 只累计模型修改的次数
+    automatic_revision_count: NotRequired[int]
+    # 只累计人工修改的次数
+    human_revision_count: NotRequired[int]
+    # 存储人工审核的决定
+    review_result: NotRequired[StoryboardReview | None]
+    # 人工审核时候，提交的内容有问题，报错信息会写入该字段。
+    review_error: NotRequired[str | None]
+    # 用户点通过时对应的内容版本
+    approved_version: NotRequired[int | None]

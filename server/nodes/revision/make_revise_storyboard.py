@@ -12,14 +12,17 @@ def make_revise_storyboard(text_model: TextModel):
         if report is None or report.is_passed or not report.issues:
             raise ValueError("没有可执行的质量问题，不能修订")
 
-        if state["revision_count"] >= state["max_revisions"]:
+        if (
+            state.get("automatic_revision_count", state["revision_count"])
+            >= state["max_revisions"]
+        ):
             raise ValueError("修订次数已达上限")
 
         old_shots = state["storyboard"]
         requirement = state["requirement"]
         candidate = [
             StoryBoard.model_validate(shot)
-            for shot in await text_model.revise_storyboard(
+            for shot in text_model.revise_storyboard(
                 requirement,
                 state["story_outline"],
                 state["characters"],
@@ -74,6 +77,8 @@ def make_revise_storyboard(text_model: TextModel):
             }
 
         next_version = state["revision_count"] + 1
+
+        # 返回新状态
         return {
             "storyboard": candidate,
             "quality_report": None,
@@ -92,6 +97,11 @@ def make_revise_storyboard(text_model: TextModel):
             "stop_reason": None,
             "current_stage": "storyboard_revised",
             "events": [f"已生成第 {next_version} 版修订分镜，等待重新校验"],
+            "automatic_revision_count": state.get(
+                "automatic_revision_count", state["revision_count"]
+            )
+            + 1,
+            "approved_version": None,
         }
 
     return revise_storyboard

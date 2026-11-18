@@ -12,7 +12,7 @@ def make_analyze_requirement(text_model: TextModel):
             raise ValueError("需求分析只能在收到创意后执行")
 
         # 无论 Fake 还是真实服务，返回值都已经通过同一 Schema 校验。
-        requirement = await text_model.analyze_requirement(state["raw_requirement"])
+        requirement = text_model.analyze_requirement(state["raw_requirement"])
 
         # 节点只返回状态增量，不原地修改共享 State。
         return {

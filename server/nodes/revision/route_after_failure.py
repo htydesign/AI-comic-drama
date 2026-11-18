@@ -8,6 +8,7 @@ def route_after_failure(
 ) -> Literal["revise_storyboard", "revision_exhausted"]:
     return (
         "revise_storyboard"
-        if state["revision_count"] < state["max_revisions"]
+        if state.get("automatic_revision_count", state["revision_count"])
+        < state["max_revisions"]
         else "revision_exhausted"
     )

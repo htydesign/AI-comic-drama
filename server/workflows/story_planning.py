@@ -25,7 +25,7 @@ def route_storyboard(
     state: ComicDramaState,
 ) -> Literal["storyboard_ready", "storyboard_invalid"]:
 
-    is_valid = state["storyboard_validation"].is_valid
+    is_valid = state["storyboard_validation"].is_valid  # type: ignore
 
     return "storyboard_ready" if is_valid else "storyboard_invalid"
 

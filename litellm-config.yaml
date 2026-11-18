@@ -1,8 +1,0 @@
-router_settings:
-  optional_pre_call_checks:
-    - session_affinity
-    
-general_settings:
-  max_in_flight_requests_per_worker: 64
-  max_queued_requests_per_worker: 64
-  admission_queue_timeout_seconds: 1.0

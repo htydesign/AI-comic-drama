@@ -25,4 +25,9 @@ def initialize_revision(state: ComicDramaState) -> dict[str, object]:
         ],
         "stop_reason": None,
         "events": ["已记录初版分镜与修订上限"],
+        "automatic_revision_count": 0,
+        "human_revision_count": 0,
+        "review_result": None,
+        "review_error": None,
+        "approved_version": None,
     }

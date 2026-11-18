@@ -40,9 +40,7 @@ class FakeTextModel:
         self._quality_fault = quality_fault
         self._revision_scenario = revision_scenario
 
-    async def analyze_requirement(
-        self, raw_requirement: str
-    ) -> CreativeRequirement:
+    def analyze_requirement(self, raw_requirement: str) -> CreativeRequirement:
         response = self._response or {
             "title": "零点之后",
             "genre": "都市奇幻",
@@ -56,9 +54,7 @@ class FakeTextModel:
         }
         return CreativeRequirement.model_validate(response)
 
-    async def generate_story_outline(
-        self, requirement: CreativeRequirement
-    ) -> StoryOutline:
+    def generate_story_outline(self, requirement: CreativeRequirement) -> StoryOutline:
         return StoryOutline(
             opening="小林在深夜办公室加班，漫画角色阿沐突然出现在屏幕旁。",
             conflict="阿沐必须在零点前回到漫画，否则会从故事中消失。",
@@ -68,7 +64,7 @@ class FakeTextModel:
             theme="用创作连接两个世界，也让孤独的人获得陪伴。",
         )
 
-    async def generate_characters(
+    def generate_characters(
         self, requirement: CreativeRequirement, outline: StoryOutline
     ) -> list[CharacterProfile]:
         if self._planning_fault == "characters":
@@ -95,7 +91,7 @@ class FakeTextModel:
             ),
         ]
 
-    async def generate_scenes(
+    def generate_scenes(
         self, requirement: CreativeRequirement, outline: StoryOutline
     ) -> list[SceneProfile]:
         if self._planning_fault == "scenes":
@@ -113,7 +109,7 @@ class FakeTextModel:
             )
         ]
 
-    async def generate_storyboard(
+    def generate_storyboard(
         self,
         requirement: CreativeRequirement,
         outline: StoryOutline,
@@ -184,7 +180,7 @@ class FakeTextModel:
 
         return storyboard
 
-    async def evaluate_storyboard_quality(
+    def evaluate_storyboard_quality(
         self,
         requirement: CreativeRequirement,
         outline: StoryOutline,
@@ -308,7 +304,7 @@ class FakeTextModel:
             affected_shot_ids=[],
         )
 
-    async def revise_storyboard(
+    def revise_storyboard(
         self,
         requirement: CreativeRequirement,
         outline: StoryOutline,

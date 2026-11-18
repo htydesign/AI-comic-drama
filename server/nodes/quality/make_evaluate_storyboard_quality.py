@@ -9,7 +9,7 @@ def make_evaluate_storyboard_quality(text_model: TextModel):
     ) -> dict[str, object]:
         if not state["storyboard_validation"].is_valid:
             raise ValueError("硬规则未通过，不能调用语义评价")
-        report = await text_model.evaluate_storyboard_quality(
+        report = text_model.evaluate_storyboard_quality(
             state["requirement"],
             state["story_outline"],
             state["characters"],

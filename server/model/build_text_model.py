@@ -1,25 +1,8 @@
 import os
-from typing import Any
 
-from server.utils.create_model import create_model
 from .ark_text_model import ArkTextModel
 from .fake_text_model import FakeTextModel
 from .text_model import TextModel
-from server.config.nacos.nacos_schema import AgentSpec
-from server.config.nacos.nacos_agent_spec import get_agent_spec
-
-
-class build_model:
-    _agent_config: AgentSpec | None = None
-
-    def _get_model(self) -> Any:
-        if not self._agent_config:
-            return create_model()
-        return create_model(self._agent_config.model)
-
-    async def _get_agent_config(self):
-        if not self._agent_config:
-            self._agent_config = await get_agent_spec("chat_agent")
 
 
 def build_text_model() -> TextModel:
@@ -77,6 +60,6 @@ def build_text_model() -> TextModel:
         if not api_key or not model:
             raise RuntimeError("使用 ark 时必须配置 ARK_API_KEY 和 ARK_MODEL")
 
-        return ArkTextModel(api_key=api_key, model_name=model)
+        return ArkTextModel(api_key=api_key, model=model)  # type: ignore
 
     raise ValueError(f"不支持的 TEXT_MODEL_PROVIDER：{provider}")

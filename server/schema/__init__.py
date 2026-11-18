@@ -7,6 +7,7 @@ from .story_outline import StoryOutline
 from .storyboard import StoryBoard
 from .storyboard_list import StoryBoardList
 from .storyboard_validation import StoryboardValidation
+from .storyboard_review import StoryboardReview
 
 __all__ = [
     "CharacterList",
@@ -18,4 +19,5 @@ __all__ = [
     "StoryBoardList",
     "StoryOutline",
     "StoryboardValidation",
+    "StoryboardReview",
 ]
