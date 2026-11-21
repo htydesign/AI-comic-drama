@@ -9,6 +9,7 @@ from server.schema.story_outline import StoryOutline
 from server.schema.storyboard import StoryBoard
 from server.schema.storyboard_review import StoryboardReview
 from server.schema.storyboard_validation import StoryboardValidation
+from server.states.asset_reducer import merge_assets
 
 
 class ComicDramaState(TypedDict):
@@ -61,3 +62,14 @@ class ComicDramaState(TypedDict):
     review_error: NotRequired[str | None]
     # 用户点通过时对应的内容版本
     approved_version: NotRequired[int | None]
+
+    # 整个项目id
+    project_id: NotRequired[str]
+    # 视觉快照
+    visual_bible: NotRequired[dict]
+    # 视觉摘要
+    visual_digest: NotRequired[str]
+    # 素材索引
+    assets: Annotated[dict[str, dict], merge_assets]
+    # 最终生图报告
+    reference_report: NotRequired[dict]

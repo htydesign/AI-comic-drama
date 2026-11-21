@@ -4,7 +4,7 @@ from server.states import ComicDramaState
 
 
 def make_evaluate_storyboard_quality(text_model: TextModel):
-    async def evaluate_storyboard_quality(
+    def evaluate_storyboard_quality(
         state: ComicDramaState,
     ) -> dict[str, object]:
         if not state["storyboard_validation"].is_valid:

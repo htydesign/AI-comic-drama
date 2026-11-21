@@ -1,7 +1,15 @@
 from langgraph.graph import END, START, StateGraph
+from server.nodes.references.collect_reference_assets import collect_reference_assets
+from server.nodes.references.make_prepare_visual_bible import make_prepare_visual_bible
+from server.nodes.references.make_reference_node import make_reference_node
 from server.nodes.review.make_revise_from_review import make_revise_from_review
 from server.nodes.review.review_storyboard import review_storyboard
 from server.nodes.revision.initialize_revision import initialize_revision
+from server.services.image.build_image_generator import (
+    ImageRuntimeConfig,
+    build_image_generator_from_env,
+)
+from server.services.image.image_generator import ImageGenerator
 from server.states import ComicDramaState
 from server.model.text_model import TextModel
 from server.model.build_text_model import build_text_model
@@ -13,7 +21,19 @@ from server.workflows.prepare_storyboard_review import (
 )
 
 
-def build_graph(text_model: TextModel, *, checkpointer=None):
+def build_graph(
+    text_model: TextModel,
+    *,
+    image_generator: ImageGenerator | None = None,
+    generation_profile: str | None = None,
+    checkpointer=None,
+):
+    if image_generator is None:
+        config = ImageRuntimeConfig.from_env()
+        image_generator = build_image_generator_from_env()
+        generation_profile = f"{config.provider}:{config.model if config.provider == 'ark' else 'fake-image-v1'}"
+    elif generation_profile is None:
+        raise ValueError("注入图像生成器时必须明确 generation_profile")
 
     planning_graph = build_story_planning_graph(text_model)
     prepare_graph = build_prepare_storyboard_review_graph(text_model)
@@ -26,9 +46,10 @@ def build_graph(text_model: TextModel, *, checkpointer=None):
             "events": child_result["events"][len(state["events"]) :],
         }
 
-    def prepare_storyboard_review(state: ComicDramaState) -> dict[str, object]:
-        # 调用子图
-        child_result = prepare_graph.invoke(state)
+    async def prepare_storyboard_review(state: ComicDramaState) -> dict[str, object]:
+        # 子图内包含 async 节点（evaluate_storyboard_quality / revise_storyboard），
+        # 必须以异步 API 调用，否则同步 invoke 会因无法在线程池执行协程而抛 TypeError。
+        child_result = await prepare_graph.ainvoke(state)
 
         return {
             **child_result,
@@ -45,6 +66,18 @@ def build_graph(text_model: TextModel, *, checkpointer=None):
     builder.add_node("revise_from_review", make_revise_from_review(text_model))
     builder.add_node("storyboard_approved", storyboard_approved)
     builder.add_node("storyboard_cancelled", storyboard_cancelled)
+    builder.add_node(
+        "prepare_visual_bible", make_prepare_visual_bible(generation_profile)
+    )
+    builder.add_node(
+        "generate_character_references",
+        make_reference_node(image_generator, purpose="character_reference"),
+    )
+    builder.add_node(
+        "generate_scene_references",
+        make_reference_node(image_generator, purpose="scene_reference"),
+    )
+    builder.add_node("collect_reference_assets", collect_reference_assets)
 
     # 连边
     builder.add_edge(START, "story_planning")
@@ -62,7 +95,14 @@ def build_graph(text_model: TextModel, *, checkpointer=None):
         ),
         path_map=["review_storyboard", "prepare_storyboard_review"],
     )
-    builder.add_edge("storyboard_approved", END)
+    builder.add_edge("storyboard_approved", "prepare_visual_bible")
+    builder.add_edge("prepare_visual_bible", "generate_character_references")
+    builder.add_edge("prepare_visual_bible", "generate_scene_references")
+    builder.add_edge(
+        ["generate_character_references", "generate_scene_references"],
+        "collect_reference_assets",
+    )
+    builder.add_edge("collect_reference_assets", END)
     builder.add_edge("storyboard_cancelled", END)
     return builder.compile(checkpointer=checkpointer)
 
