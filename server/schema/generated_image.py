@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from server.schema.image_reference import ImageReference
+
 
 class GeneratedImage(BaseModel):
     """已规范化的素材结果；State 不需要理解平台原始响应。"""
@@ -29,3 +31,4 @@ class GeneratedImage(BaseModel):
     prompt_digest: str = Field(pattern=r"^[a-f0-9]{16}$")
     request_digest: str = Field(pattern=r"^[a-f0-9]{16}$")
     reused: bool = False
+    reference_images: list[ImageReference] = Field(default_factory=list)

@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from server.schema.image_reference import ImageReference
+
 from .generated_image import GeneratedImage
 
 
@@ -9,8 +11,6 @@ class Asset(BaseModel):
     """一项参考图资源：成功保存 GeneratedImage，失败保存结构化错误。"""
 
     model_config = ConfigDict(extra="forbid")
-    purpose: Literal["character_reference", "scene_reference"]
-    owner_id: str = Field(pattern=r"^(char|scene)_[a-z0-9_]+$")
     version: int = Field(ge=0)
     request_id: str = Field(pattern=r"^img_[a-z0-9_]+$")
     status: Literal["succeeded", "failed"]
@@ -19,6 +19,9 @@ class Asset(BaseModel):
     size: str
     image: GeneratedImage | None = None
     error_code: str | None = None
+    purpose: Literal["character_reference", "scene_reference", "shot_start", "shot_end"]
+    owner_id: str = Field(pattern=r"^(char|scene|shot)_[a-z0-9_]+$")
+    reference_images: list[ImageReference] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def check_result(self):
@@ -33,6 +36,7 @@ class Asset(BaseModel):
                 self.image.prompt,
                 self.image.negative_prompt,
                 self.image.size,
+                self.image.reference_images,
             ) != (
                 self.request_id,
                 self.purpose,
@@ -41,6 +45,7 @@ class Asset(BaseModel):
                 self.prompt,
                 self.negative_prompt,
                 self.size,
+                self.reference_images,
             ):
                 raise ValueError("成功图片必须与素材请求完全对应")
         elif self.image is not None or not self.error_code:

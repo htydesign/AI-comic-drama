@@ -73,3 +73,23 @@ class ComicDramaState(TypedDict):
     assets: Annotated[dict[str, dict], merge_assets]
     # 最终生图报告
     reference_report: NotRequired[dict]
+
+    frame_tasks: NotRequired[list[dict]]
+
+    frame_report: NotRequired[dict]
+    frame_index: NotRequired[dict[str, dict]]
+    frame_check: NotRequired[dict]
+    frame_review_round: NotRequired[int]
+    frame_review_token: NotRequired[str]
+    frame_review_result: NotRequired[dict]
+    frame_review_error: NotRequired[str | None]
+    frame_command_ids: NotRequired[list[str]]
+    pending_frame_redos: NotRequired[list[dict]]
+    frame_redo_tasks: NotRequired[list[dict]]
+    frame_redo_counts: NotRequired[dict[str, int]]
+    approved_frames: NotRequired[dict[str, dict]]
+
+    video_jobs: NotRequired[list[dict]]
+    video_results: Annotated[dict[str, dict], operator.or_]
+    video_error: NotRequired[str]
+    final_video_path: NotRequired[str]

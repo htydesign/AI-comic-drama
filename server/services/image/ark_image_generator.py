@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
@@ -43,6 +44,10 @@ class ArkImageGenerator:
         self.client = client or Ark.volc(api_key=api_key, max_retries=0)
 
     def generate(self, request: ImageGenerationRequest) -> GeneratedImage:
+
+        for reference in request.reference_images:
+            self.store.read_reference(reference)
+
         existing = self.store.load(request)
         if existing is not None:
             if existing.provider_model != self.model:
@@ -53,6 +58,20 @@ class ArkImageGenerator:
             provider_prompt = request.prompt
             if request.negative_prompt:
                 provider_prompt += f"\n请避免：{request.negative_prompt}"
+            # 在 SDK 边界临时编码参考图，云端不能读取本地文件路径。
+            image_inputs = []
+            for reference in request.reference_images:
+                content = self.store.read_reference(reference)
+                suffix = self.store._detect_suffix(content)
+                mime = {
+                    ".png": "image/png",
+                    ".jpg": "image/jpeg",
+                    ".webp": "image/webp",
+                }[suffix]
+                encoded = base64.b64encode(content).decode("ascii")
+                image_inputs.append(f"data:{mime};base64,{encoded}")
+            extra = {"image": image_inputs} if image_inputs else {}
+
             response = self.client.images.generate(
                 model=self.model,
                 prompt=provider_prompt,
@@ -61,7 +80,9 @@ class ArkImageGenerator:
                 watermark=False,
                 sequential_image_generation="disabled",
                 timeout=self.timeout_seconds,
+                **extra,
             )
+
         except ArkAuthenticationError as exc:
             raise self._error("authentication_failed", exc, request) from exc
         except ArkPermissionDeniedError as exc:
