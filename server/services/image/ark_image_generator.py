@@ -13,6 +13,7 @@ from arkruntime._exceptions import (
     ArkBadRequestError,
     ArkPermissionDeniedError,
     ArkRateLimitError,
+    ArkNotFoundError,
 )
 
 from server.schema.generated_image import GeneratedImage
@@ -95,6 +96,8 @@ class ArkImageGenerator:
             raise self._error("generation_timeout", exc, request) from exc
         except ArkAPIConnectionError as exc:
             raise self._error("provider_unavailable", exc, request) from exc
+        except ArkNotFoundError as exc:
+            raise self._error("model_not_found", exc, request) from exc
         except ArkAPIStatusError as exc:
             raise self._error("provider_error", exc, request) from exc
 
