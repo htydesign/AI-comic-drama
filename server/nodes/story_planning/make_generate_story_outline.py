@@ -3,7 +3,7 @@ from server.states import ComicDramaState
 
 
 def make_generate_story_outline(text_model: TextModel):
-    async def generate_story_outline(
+    def generate_story_outline(
         state: ComicDramaState,
     ) -> dict[str, object]:
         # 故事必须服从已校验的需求，而不是重新理解原始字符串。

@@ -5,7 +5,7 @@ from server.states.state import ComicDramaState
 def make_analyze_requirement(text_model: TextModel):
     """通过闭包注入文本模型，让节点不依赖具体厂商 SDK。"""
 
-    async def analyze_requirement(state: ComicDramaState) -> dict[str, object]:
+    def analyze_requirement(state: ComicDramaState) -> dict[str, object]:
         """把原始创意转换为经过 Pydantic 校验的需求契约。"""
 
         if state["current_stage"] != "idea_received":

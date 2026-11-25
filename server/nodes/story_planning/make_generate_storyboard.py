@@ -3,7 +3,7 @@ from server.states import ComicDramaState
 
 
 def make_generate_storyboard(text_model: TextModel):
-    async def generate_storyboard(
+    def generate_storyboard(
         state: ComicDramaState,
     ) -> dict[str, object]:
         requirement = state.get("requirement")

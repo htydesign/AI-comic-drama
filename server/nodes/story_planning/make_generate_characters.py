@@ -3,7 +3,7 @@ from server.states import ComicDramaState
 
 
 def make_generate_characters(text_model: TextModel):
-    async def generate_characters(
+    def generate_characters(
         state: ComicDramaState,
     ) -> dict[str, object]:
         requirement = state.get("requirement")

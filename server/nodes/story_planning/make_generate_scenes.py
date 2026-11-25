@@ -3,7 +3,7 @@ from server.states import ComicDramaState
 
 
 def make_generate_scenes(text_model: TextModel):
-    async def generate_scenes(state: ComicDramaState) -> dict[str, object]:
+    def generate_scenes(state: ComicDramaState) -> dict[str, object]:
         requirement = state.get("requirement")
         outline = state.get("story_outline")
         if requirement is None or outline is None:
